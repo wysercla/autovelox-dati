@@ -34,7 +34,7 @@ for b in zone:
             time.sleep(6)
     time.sleep(2)
 
-if zone_ok >= 8 and len(dati) > 4000:
+if zone_ok >= 8 and len(dati) > 2500:
     with open("autovelox_italia.json", "w") as f:
         json.dump(list(dati.values()), f, separators=(",", ":"))
     print("AGGIORNAMENTO FISSI + TUTOR + SEMAFORI OK! Zone:", zone_ok, "Totale:", len(dati))
