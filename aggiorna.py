@@ -1,6 +1,11 @@
 import json, urllib.request, urllib.parse, time
 
-dati = {}
+with open("autovelox_italia.json") as f:
+    dati = {}
+    for row in json.load(f):
+        dati[row.__getitem__(0)] = row
+
+iniziali = len(dati)
 zone = [
     "35.4,6.6,42.5,18.6",
     "42.5,6.6,45.0,18.6",
@@ -11,7 +16,6 @@ zone = [
 srv1 = "https://" + "maps.mail.ru/osm/tools/overpass/api/interpreter"
 srv2 = "https://" + "overpass-api.de/api/interpreter"
 servers = [srv1, srv2]
-zone_ok = 0
 
 for b in zone:
     q = '[out:json][timeout:45];node["highway"="speed_camera"]["maxspeed"](' + b + ');out tags qt;'
@@ -24,15 +28,15 @@ for b in zone:
                     ms = o.get("tags", {}).get("maxspeed", "")
                     if "lat" in o and "lon" in o and ms:
                         dati[o["id"]] = [o["id"], o["lat"], o["lon"], ms]
-                zone_ok += 1
                 break
         except Exception:
             time.sleep(5)
     time.sleep(2)
 
-if zone_ok >= 4 and len(dati) > 2500:
+nuovi = len(dati) - iniziali
+if nuovi > 0:
     with open("autovelox_italia.json", "w") as f:
         json.dump(list(dati.values()), f, separators=(",", ":"))
-    print("AGGIORNAMENTO SOLO FISSI OK! Totale:", len(dati))
+    print(f"AGGIUNTI {nuovi} NUOVI VELOX! Totale ora: {len(dati)}")
 else:
-    print("Server occupati, mantengo il file esistente.")
+    print(f"Nessun nuovo velox trovato. Totale confermato: {iniziali}")
